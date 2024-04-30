@@ -1,0 +1,47 @@
+<blockquote>Please click on a row</blockquote>
+<button class="btn btn-lg btn-outline-primary" (click)="open(dataModal)">Launch demo modal</button>
+<br/>
+<table datatable [dtOptions]="dtOptions" class="table table-striped table-bordered dt-responsive nowrap"></table>
+
+<ng-template #dataModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="modal-title-label">新增資料</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <input type="hidden" id="rowId">
+      <div class="mb-3">
+        <label for="name" class="form-label">名稱:</label>
+        <input type="text" class="form-control" id="name" placeholder="請輸入名稱">
+      </div>
+      <div class="mb-3">
+        <label for="location" class="form-label">位置:</label>
+        <input type="text" class="form-control" id="location" placeholder="請輸入位置">
+      </div>
+      <div class="mb-3">
+        <label for="price" class="form-label">價格:</label>
+        <input type="text" class="form-control" id="price" placeholder="請輸入價格">
+      </div>
+      <div class="mb-3">
+        <label for="status" class="form-label">狀態:</label>
+        <input type="text" class="form-control" id="status" placeholder="請輸入狀態">
+      </div>
+      <div class="mb-3">
+        <label for="purchase_date" class="form-label">購買日期:</label>
+        <input type="date" class="form-control" id="purchase_date" placeholder="請輸入購買日期">
+      </div>
+      <div class="mb-3">
+        <label for="size" class="form-label">尺寸:</label>
+        <input type="text" class="form-control" id="size" placeholder="請輸入尺寸">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    <button type="button" id="add" class="btn btn-primary fas fa-save">新增</button>
+    <button type="button" id="update" class="btn btn-primary" data-bs-dismiss="modal"
+            style="display: none;">更新
+    </button>
+  </div>
+</ng-template>
