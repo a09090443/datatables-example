@@ -1,10 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {Config} from "datatables.net";
-import {DataTablesModule} from "angular-datatables";
+import {DataTableDirective, DataTablesModule} from "angular-datatables";
 import 'datatables.net-responsive';
 import {ModalDismissReasons, NgbModal} from "@ng-bootstrap/ng-bootstrap";
-
 
 @Component({
   selector: 'app-table-example',
@@ -17,9 +16,15 @@ import {ModalDismissReasons, NgbModal} from "@ng-bootstrap/ng-bootstrap";
   styleUrl: './table-example.component.scss'
 })
 export class TableExampleComponent implements OnInit {
-  isLoading = true;
+  private outputText: string | undefined;
 
-  constructor(private modalService: NgbModal, private http: HttpClient) {}
+  @ViewChild('dataModal') dataModal!: TemplateRef<any>;
+
+  @ViewChild(DataTableDirective)
+  private datatableElement: DataTableDirective | undefined;
+
+  constructor(private modalService: NgbModal, private http: HttpClient) {
+  }
 
   dtOptions: Config = {};
 
@@ -70,21 +75,25 @@ export class TableExampleComponent implements OnInit {
         {
           width: '10%', data: null, title: "操作功能", orderable: false,
           render: function (data, type, row) {
-            return '<button type="button" id="edit" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#dataModal">編輯</button> ' +
+            return '<button type="button" id="edit" class="btn btn-warning btn-sm">編輯</button> ' +
               '<button type="button" id="del" class="btn btn-danger btn-sm">刪除</button>'
           },
         },
       ],
       responsive: true,
-      // rowCallback: (row: Node, data: any[] | Object, index: number) => {
-      //   const self = this;
-      //   // Unbind first in order to avoid any duplicate handler
-      //   $('td.dt-control', row).off('click');
-      //   $('td.dt-control', row).on('click', () => {
-      //     self.someClickHandler(data);
-      //   });
-      //   return row;
-      // },
+      rowCallback: (row: Node, data: any[] | Object, index: number) => {
+        const self = this;
+        // Unbind first in order to avoid any duplicate handler
+        $('#edit', row).off('click');
+        $('#edit', row).on('click', () => {
+          self.open(this.dataModal);
+        });
+        $('#del', row).off('click');
+        $('#del', row).on('click', () => {
+          self.del(row);
+        });
+        return row;
+      },
       order: [[1, 'asc']],
       processing: true,
       //設定語言區塊(language),
@@ -93,6 +102,7 @@ export class TableExampleComponent implements OnInit {
       },
     };
   }
+
   closeResult: string | undefined;
 
   open(content: any) {
@@ -109,11 +119,23 @@ export class TableExampleComponent implements OnInit {
     } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
       return 'by clicking on a backdrop';
     } else {
-      return  `with: ${reason}`;
+      return `with: ${reason}`;
     }
   }
-  // message = '';
-  // someClickHandler(info: any): void {
-  //   this.message = info.rowId + ' - ' + info.location;
-  // }
+
+  del(info: any) {
+    if (this.datatableElement) {
+      this.datatableElement.dtInstance.then((dtInstance) => {
+        dtInstance.row(info).remove().draw();
+      });
+    }
+  }
+
+  message = '';
+
+  someClickHandler(info: any): void {
+    this.open(this.dataModal);
+    this.message = info.rowId + ' - ' + info.location;
+  }
+
 }

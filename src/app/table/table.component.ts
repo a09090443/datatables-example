@@ -1,10 +1,10 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {NgbDate, NgbDatepickerModule} from '@ng-bootstrap/ng-bootstrap';
+import {ModalDismissReasons, NgbDate, NgbDatepickerModule, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {RouterOutlet} from "@angular/router";
 import {CommonModule} from "@angular/common";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {Subject} from "rxjs";
-import DataTables from "datatables.net";
+import DataTables, {Config} from "datatables.net";
 import {DataTableDirective, DataTablesModule} from "angular-datatables";
 
 declare function test(): void;
@@ -22,94 +22,114 @@ declare function test(): void;
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss']
 })
-export class TableComponent implements OnInit, OnDestroy {
-  isLoading = true;
+export class TableComponent implements OnInit {
 
-  // @ts-ignore
-  dtOptions: DataTables.Settings = {};
-  posts: any;
-  @ViewChild(DataTableDirective) dtElement: DataTableDirective | undefined;
-  dtTrigger: Subject<any> = new Subject();
+  constructor(private modalService: NgbModal, private http: HttpClient) {}
 
-  onDateSelect(date: NgbDate) {
-    console.log(date);
-  }
-
-  allUsers: any = [];
-
-  constructor(private http: HttpClient) {}
+  dtOptions: Config = {};
 
   ngOnInit(): void {
+    const self = this;
     this.dtOptions = {
-      pageLength: 10,
-      responsive: true,
-      dom: 'Bfrtip',
+      ajax: 'assets/data2.json',
       columns: [
         {
-          width: '2%',
-          class: 'dt-control',
+          width: '1%',
           orderable: false,
           data: null,
-          defaultContent: ''
+          defaultContent: '',
+          className: 'dt-control'
         },
-        {data: 'name'},
-        {data: 'location'},
-        {data: 'price'},
-        {data: 'status'},
         {
-          data: ''
+          title: 'Name',
+          data: 'name'
+        },
+        {
+          title: 'Location',
+          data: 'location'
+        },
+        {
+          title: 'Price',
+          data: 'price'
+        },
+        {
+          title: 'Status',
+          data: 'status'
+        },
+        {
+          title: 'PurchaseDate',
+          data: 'purchase_date',
+          className: 'none'
+        },
+        {
+          title: 'Size',
+          data: 'size',
+          className: 'none'
+        },
+        {
+          width: '10%', data: null, title: "操作功能", orderable: false,
+          render: function (data, type, row) {
+            return '<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsOOptiu8RJfPNOP4DkkBdRbGZghdHycRyyQ&s" alt="placeholder" width="150" height="150" />'
+          },
+          className: 'none'
+        },
+        {
+          width: '10%', data: null, title: "操作功能", orderable: false,
+          render: function (data, type, row) {
+            return '<button class="btn btn-primary" #edit (click)="test()" id="edit">編輯</button> ' +
+              '<button type="button" id="del" class="btn btn-danger btn-sm">刪除</button>'
+          },
         },
       ],
-      order: {
-        idx: 1,
-        dir: ''
+      responsive: true,
+      // rowCallback: (row: Node, data: any[] | Object, index: number) => {
+      //   const self = this;
+      //   // Unbind first in order to avoid any duplicate handler
+      //   $('td.dt-control', row).off('click');
+      //   $('td.dt-control', row).on('click', () => {
+      //     self.someClickHandler(data);
+      //   });
+      //   return row;
+      // },
+      order: [[1, 'asc']],
+      processing: true,
+      //設定語言區塊(language),
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.11.3/i18n/zh_Hant.json"
       },
-      columnDefs: [{ targets: 0, orderable: false }],
-      // buttons: [
-      //   {
-      //     className: '',
-      //     extend: 'excel',
-      //     sheetName: 'Company Code',
-      //     title: 'Company Code List',
-      //     exportOptions: {
-      //       columns: [1, 2, 3],
-      //       modifier: {
-      //         page: 'current',
-      //       },
-      //     },
-      //   },
-      //   {
-      //     extend: 'print',
-      //     exportOptions: {
-      //       columns: [1, 2, 3],
-      //     },
-      //   },
-      // ],
     };
-
-    this.http
-      .get('assets/data.json')
-      .subscribe((posts) => {
-        this.posts = posts;
-        this.isLoading = false;
-        this.rerender();
-        console.log(this.posts)
-      });
   }
-
-  ngAfterViewInit(): void {
-    this.dtTrigger.next(null);
-  }
-
-  rerender(): void {
-    // @ts-ignore
-    this.dtElement?.dtInstance.then((dtInstance: DataTables["Api"]) => {
-      dtInstance.destroy();
-      this.dtTrigger.next(null);
+  closeResult: string | undefined;
+  title: string | undefined;
+  open(content: any, button: any) {
+    if (button.id === 'add') {
+      this.title = '新增資料';
+    } else {
+      this.title = '編輯資料';
+    }
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title'}).result.then((result) => {
+      this.closeResult = `Closed with: ${result}`;
+    }, (reason) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
     });
   }
 
-  ngOnDestroy(): void {
-    this.dtTrigger.unsubscribe();
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return  `with: ${reason}`;
+    }
   }
+
+  test(){
+    alert('test');
+  }
+  // message = '';
+  // someClickHandler(info: any): void {
+  //   this.message = info.rowId + ' - ' + info.location;
+  // }
+
 }
