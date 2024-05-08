@@ -1,6 +1,6 @@
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {Config} from "datatables.net";
+import {Api, Config} from "datatables.net";
 import {DataTableDirective, DataTablesModule} from "angular-datatables";
 import 'datatables.net-responsive';
 import {ModalDismissReasons, NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -125,7 +125,7 @@ export class TableExampleComponent implements OnInit {
 
   del(info: any) {
     if (this.datatableElement) {
-      this.datatableElement.dtInstance.then((dtInstance) => {
+      this.datatableElement.dtInstance.then((dtInstance: Api<any>) => {
         dtInstance.row(info).remove().draw();
       });
     }

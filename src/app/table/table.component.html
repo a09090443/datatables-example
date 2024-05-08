@@ -1,22 +1,58 @@
-<div class="container">
-  <div class="row">
-    <div class="col p-5">
-      <h1>Angular 16 Datatables Example</h1>
-      <div class="table-responsive">
-        <table datatable [dtOptions]="dtOptions" class="table table-striped table-bordered dt-responsive nowrap">
-          <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Phone number</th>
-            <th>Address</th>
-          </tr>
-          </thead>
-        </table>
-      </div>
+<h2>Simple TODO Table</h2>
 
+
+<mat-card>
+  <mat-card-header>
+    <div>
+      <button mat-flat-button color="primary" (click)="send()">Send</button>
     </div>
-  </div>
-</div>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-form-field>
+      <input (keyup)="applyFilter($event)" matInput placeholder="Filter">
+    </mat-form-field>
+
+    <mat-table [dataSource]="dataSource" matSort matSortActive="symbol" matSortDirection="asc">
+
+      <ng-container matColumnDef="{{column}}" *ngFor="let column of displayedColumns; let i = index;">
+      <span *ngIf="i === 0">
+        <mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggle() : null"
+                        color="primary"
+                        [checked]="selection.hasValue() && isAllSelected()"
+                        [indeterminate]="selection.hasValue() && !isAllSelected()"
+                        [aria-label]="checkboxLabel()">
+          </mat-checkbox>
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation()"
+                        (change)="$event ? selection.toggle(row) : null"
+                        color="primary"
+                        [checked]="selection.isSelected(row)"
+                        [aria-label]="checkboxLabel(row)">
+          </mat-checkbox>
+        </mat-cell>
+      </span>
+
+        <span *ngIf="i !== 0">
+        <mat-header-cell mat-sort-header *matHeaderCellDef>
+        {{ column }}
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element;">
+            {{ element[column != 'button' ? column : 'status'] }}
+        </mat-cell>
+      </span>
+
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true;"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)"></mat-row>
+
+    </mat-table>
+
+    <mat-paginator [pageSizeOptions]="pageSizeOptions"
+                   [showFirstLastButtons]="true"
+                   [pageSize]="pageSize">
+    </mat-paginator>
+  </mat-card-content>
+</mat-card>
