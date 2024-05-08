@@ -137,6 +137,7 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
       this.selection.clear() :
       this.dataSource.data.forEach(data => this.selection.select(data));
   }
+
   // selectAll(event: Event) {
   //   this.dataSource.data = this.dataSource.data.map((item: any) => ({
   //     ...item,
@@ -149,7 +150,7 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
       : `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
 
-  public send(){
+  public send() {
     console.log(this.selection.selected);
   }
 
@@ -175,15 +176,16 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
   }
 
   addRow() {
-    // const newRow = {
-    //   id: Date.now(),
-    //   name: '',
-    //   occupation: '',
-    //   dateOfBirth: '',
-    //   age: 0,
-    //   isEdit: true,
-    // };
-    // this.dataSource = [newRow, ...this.dataSource];
+    const newRow: Products[] = [{
+      rowId: Date.now().toString(),
+      name: '',
+      location: '',
+      price: 0,
+      status: '',
+      purchase_date: '',
+      size: ''
+    }];
+    this.dataSource.data = [newRow, ...this.dataSource.data];
   }
 
 }
