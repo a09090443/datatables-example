@@ -138,12 +138,6 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
       this.dataSource.data.forEach(data => this.selection.select(data));
   }
 
-  // selectAll(event: Event) {
-  //   this.dataSource.data = this.dataSource.data.map((item: any) => ({
-  //     ...item,
-  //     isSelected: event.checked,
-  //   }));
-  // }
   public checkboxLabel(row?: any): string {
     return (!row)
       ? `${this.isAllSelected() ? 'select' : 'deselect'} all`
