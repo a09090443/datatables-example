@@ -13,7 +13,7 @@ import {Products} from "../model/Products";
 import {SelectionModel} from "@angular/cdk/collections";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
-import {MatDialog, MatDialogModule} from "@angular/material/dialog";
+import {MatDialogModule} from "@angular/material/dialog";
 
 const COLUMNS_SCHEMA = [
   {
@@ -99,7 +99,7 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
 
   selection = new SelectionModel<Products[]>(true, []);
 
-  constructor(private http: HttpClient, public dialog: MatDialog) {
+  constructor(private http: HttpClient) {
   }
 
   ngOnInit(): void {
@@ -142,10 +142,6 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
     return (!row)
       ? `${this.isAllSelected() ? 'select' : 'deselect'} all`
       : `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
-  }
-
-  public send() {
-    console.log(this.selection.selected);
   }
 
   removeSelectedRows() {
