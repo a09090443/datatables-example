@@ -93,11 +93,11 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
   columnsSchema: any = COLUMNS_SCHEMA;
 
-  dataSource: MatTableDataSource<Products[]> = new MatTableDataSource<Products[]>();
+  dataSource: MatTableDataSource<Products> = new MatTableDataSource<Products>();
   @ViewChild(MatSort) dataSort: MatSort = new MatSort();
   @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
 
-  selection = new SelectionModel<Products[]>(true, []);
+  selection = new SelectionModel<Products>(true, []);
 
   constructor(private http: HttpClient) {
   }
@@ -166,7 +166,7 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
   }
 
   addRow() {
-    const newRow: Products[] = [{
+    const newRow: Products = {
       rowId: Date.now().toString(),
       name: '',
       location: '',
@@ -174,7 +174,7 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
       status: '',
       purchase_date: '',
       size: ''
-    }];
+    };
     this.dataSource.data = [newRow, ...this.dataSource.data];
   }
 
