@@ -8,7 +8,7 @@ import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MatCardModule} from "@angular/material/card";
 import {MatInputModule} from "@angular/material/input";
 import {MatCheckbox} from "@angular/material/checkbox";
-import {FormsModule} from "@angular/forms";
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {Products} from "../model/Products";
 import {SelectionModel} from "@angular/cdk/collections";
 import {MatDatepickerModule} from "@angular/material/datepicker";
@@ -81,7 +81,8 @@ const COLUMNS_SCHEMA = [
     NgSwitchCase,
     DatePipe,
     NgSwitchDefault,
-    NgForOf
+    NgForOf,
+    ReactiveFormsModule
   ],
   styleUrl: './table-simple.component.scss'
 })
@@ -92,6 +93,7 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
   pageSizeOptions = [10, 50, 100];
   displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
   columnsSchema: any = COLUMNS_SCHEMA;
+  public searchForm: FormGroup = <FormGroup>{};
 
   dataSource: MatTableDataSource<Products> = new MatTableDataSource<Products>();
   @ViewChild(MatSort) dataSort: MatSort = new MatSort();
@@ -104,12 +106,48 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.fetchData();
+    this.searchFormInit();
+  }
+
+  getFilterPredicate() {
+    return (row: Products, filters: string) => {
+      // split string per '$' to array
+      const filterArray = filters.split('$');
+      const productName = filterArray[0];
+      const price = filterArray[1];
+
+      const matchFilter = [];
+
+      // Fetch data from row
+      const columnProductName = row.name;
+      const columnPrice = row.price;
+
+      // verify fetching data by our searching values
+      const customFilterPN = columnProductName.toLowerCase().includes(productName);
+      const customFilterP = columnPrice.toString().includes(price);
+
+      // push boolean values into array
+      matchFilter.push(customFilterPN);
+      matchFilter.push(customFilterP);
+
+      // return true if all values in array is true
+      // else return false
+      return matchFilter.every(Boolean);
+    };
+  }
+
+  searchFormInit() {
+    this.searchForm = new FormGroup({
+      productName: new FormControl('', Validators.pattern('^[a-zA-Z ]+$')),
+      price: new FormControl('')
+    });
   }
 
   fetchData(): void {
     this.http.get('assets/data.json').subscribe(
       (response: any) => {
         this.dataSource = new MatTableDataSource(response);
+        this.dataSource.filterPredicate = this.getFilterPredicate();
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.dataSort;
       }
@@ -178,4 +216,10 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
     this.dataSource.data = [newRow, ...this.dataSource.data];
   }
 
+  search() {
+    const productName = this.searchForm.get('productName')?.value;
+    const price = this.searchForm.get('price')?.value;
+    const filterValue = productName.trim().toLowerCase() + '$' + price;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
 }

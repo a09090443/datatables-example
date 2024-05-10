@@ -11,6 +11,31 @@
     <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
   </mat-form-field>
 </div>
+<div>
+  <form [formGroup]="searchForm" class="search__form">
+
+    <mat-form-field class="search__form_field" appearance="outline">
+      <mat-label>Product name</mat-label>
+      <input type="text"
+             aria-label="Product name"
+             matInput
+             formControlName="productName"
+             (keyup)="search()"
+      >
+    </mat-form-field>
+
+    <mat-form-field class="search__form_field" appearance="outline">
+      <mat-label>Price</mat-label>
+      <input type="text"
+             aria-label="Price"
+             matInput
+             formControlName="price"
+             (keyup)="search()"
+      >
+    </mat-form-field>
+  </form>
+</div>
+
 <div class="mat-elevation-z8">
   <table
     mat-table
