@@ -1,40 +1,88 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
-import {MatCell, MatTableDataSource, MatTableModule} from "@angular/material/table";
+import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {MatButtonModule} from "@angular/material/button";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {MatSort, MatSortModule} from "@angular/material/sort";
-import {NgForOf, NgIf} from "@angular/common";
+import {DatePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault} from "@angular/common";
 import {Products} from "../model/Products";
-import {DataTablesModule} from "angular-datatables";
 import {MatCardModule} from "@angular/material/card";
-import {MatFormFieldModule} from "@angular/material/form-field";
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
-import {MatInput} from "@angular/material/input";
+import {MatInputModule} from "@angular/material/input";
 import {SelectionModel} from "@angular/cdk/collections";
 import {MatCheckbox} from "@angular/material/checkbox";
 import {FormsModule} from "@angular/forms";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+import {MatDialogModule} from "@angular/material/dialog";
+import {HeaderComponent} from "../header/header.component";
+
+const COLUMNS_SCHEMA = [
+  {
+    key: 'rowId',
+    type: 'text',
+    label: '編號',
+  },
+  {
+    key: 'name',
+    type: 'text',
+    label: '名稱',
+  },
+  {
+    key: 'location',
+    type: 'text',
+    label: '存放位置',
+  },
+  {
+    key: 'price',
+    type: 'number',
+    label: '價格',
+  },
+  {
+    key: 'status',
+    type: 'string',
+    label: '狀態',
+  },
+  {
+    key: 'purchase_date',
+    type: 'date',
+    label: '購買日期',
+  },
+  {
+    key: 'size',
+    type: 'string',
+    label: '尺寸',
+  },
+  {
+    key: 'isEdit',
+    type: 'isEdit',
+    label: '',
+  },
+];
 
 @Component({
   selector: 'app-table',
   standalone: true,
   imports: [
     HttpClientModule,
-    DataTablesModule,
     HttpClientModule,
     MatTableModule,
-    MatSortModule,
-    NgForOf,
-    NgIf,
-    MatCell,
     MatCardModule,
+    MatSortModule,
     MatButtonModule,
     MatPaginatorModule,
-    MatFormFieldModule,
-    MatProgressSpinner,
-    MatInput,
+    MatInputModule,
     MatCheckbox,
-    FormsModule
+    FormsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatDialogModule,
+    NgSwitch,
+    NgIf,
+    NgSwitchCase,
+    DatePipe,
+    NgSwitchDefault,
+    NgForOf,
+    HeaderComponent
   ],
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss'
@@ -43,11 +91,12 @@ export class TableComponent implements OnInit, AfterViewInit {
 
   pageSize = 10;
   pageSizeOptions = [10, 50, 100];
-  displayedColumns: string[] = ['rowId', 'name', 'location', 'price', 'status', 'purchase_date', 'size', 'button'];
+  displayedColumns: string[] = COLUMNS_SCHEMA.map((col) => col.key);
+  columnsSchema: any = COLUMNS_SCHEMA;
 
-  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
   dataSource: MatTableDataSource<Products[]> = new MatTableDataSource<Products[]>();
   @ViewChild(MatSort) dataSort: MatSort = new MatSort();
+  @ViewChild(MatPaginator) paginator: MatPaginator = <MatPaginator>{};
 
   selection = new SelectionModel<Products[]>(true, []);
 
@@ -58,17 +107,12 @@ export class TableComponent implements OnInit, AfterViewInit {
     this.fetchData();
   }
 
-  ngAfterViewInit(): void {
-    this.dataSort.disableClear = true;
-    this.dataSource.sort = this.dataSort;
-  }
-
   fetchData(): void {
     this.http.get('assets/data.json').subscribe(
       (response: any) => {
         this.dataSource = new MatTableDataSource(response);
-        this.dataSource.sort = this.dataSort;
         this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.dataSort;
       }
     );
   }
@@ -76,6 +120,11 @@ export class TableComponent implements OnInit, AfterViewInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSort.disableClear = true;
+    this.dataSource.sort = this.dataSort;
   }
 
   public isAllSelected() {
@@ -96,7 +145,38 @@ export class TableComponent implements OnInit, AfterViewInit {
       : `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
 
-  public send(){
-    console.log(this.selection.selected);
+  removeSelectedRows() {
+    const deleteItem = confirm("確定刪除?");
+    if (deleteItem) {
+      this.dataSource.data = this.dataSource.data.filter(item => !this.selection.isSelected(item));
+    }
+    console.log(this.dataSource.data);
   }
+
+  removeRow(id: number) {
+    const deleteItem = confirm("確定刪除?");
+    if (deleteItem) {
+      const data = this.dataSource.data;
+      data.splice(
+        this.paginator.pageIndex * this.paginator.pageSize + id,
+        1
+      );
+      this.dataSource.data = data;
+    }
+    console.log(id);
+  }
+
+  addRow() {
+    const newRow: Products[] = [{
+      rowId: Date.now().toString(),
+      name: '',
+      location: '',
+      price: 0,
+      status: '',
+      purchase_date: '',
+      size: ''
+    }];
+    this.dataSource.data = [newRow, ...this.dataSource.data];
+  }
+
 }
