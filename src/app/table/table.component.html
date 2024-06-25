@@ -85,6 +85,10 @@
               [ngModel]="element[column.key]"
             />
           </mat-form-field>
+          <div class="file-input-wrapper" *ngSwitchCase="'file'">
+            <mat-label>File matInput</mat-label>
+            <input type="file" (change)="onFileSelected($event)">
+          </div>
           <mat-form-field class="form-input" *ngSwitchDefault>
             <input [type]="column.type" matInput [(ngModel)]="element[column.key]" />
           </mat-form-field>

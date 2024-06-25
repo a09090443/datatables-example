@@ -64,7 +64,6 @@ const COLUMNS_SCHEMA = [
   standalone: true,
   imports: [
     HttpClientModule,
-    HttpClientModule,
     MatTableModule,
     MatCardModule,
     MatSortModule,
@@ -150,6 +149,9 @@ export class TableSimpleComponent implements OnInit, AfterViewInit {
         this.dataSource.filterPredicate = this.getFilterPredicate();
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.dataSort;
+      },
+      (error: any) => {
+        console.log(error);
       }
     );
   }

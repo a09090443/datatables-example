@@ -2,7 +2,6 @@ import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {MatPaginator, MatPaginatorModule} from "@angular/material/paginator";
 import {MatTableDataSource, MatTableModule} from "@angular/material/table";
 import {MatButtonModule} from "@angular/material/button";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {MatSort, MatSortModule} from "@angular/material/sort";
 import {DatePipe, NgForOf, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault} from "@angular/common";
 import {Products} from "../model/Products";
@@ -10,11 +9,13 @@ import {MatCardModule} from "@angular/material/card";
 import {MatInputModule} from "@angular/material/input";
 import {SelectionModel} from "@angular/cdk/collections";
 import {MatCheckbox} from "@angular/material/checkbox";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import {MatDialogModule} from "@angular/material/dialog";
 import {HeaderComponent} from "../header/header.component";
+import {HttpClient} from "@angular/common/http";
+import {MatIcon} from "@angular/material/icon";
 
 const COLUMNS_SCHEMA = [
   {
@@ -29,7 +30,7 @@ const COLUMNS_SCHEMA = [
   },
   {
     key: 'location',
-    type: 'text',
+    type: 'file',
     label: '存放位置',
   },
   {
@@ -63,8 +64,6 @@ const COLUMNS_SCHEMA = [
   selector: 'app-table',
   standalone: true,
   imports: [
-    HttpClientModule,
-    HttpClientModule,
     MatTableModule,
     MatCardModule,
     MatSortModule,
@@ -82,7 +81,9 @@ const COLUMNS_SCHEMA = [
     DatePipe,
     NgSwitchDefault,
     NgForOf,
-    HeaderComponent
+    HeaderComponent,
+    MatIcon,
+    ReactiveFormsModule
   ],
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss'
@@ -177,6 +178,15 @@ export class TableComponent implements OnInit, AfterViewInit {
       size: ''
     }];
     this.dataSource.data = [newRow, ...this.dataSource.data];
+  }
+
+  onFileSelected(event: Event) {
+    // @ts-ignore
+    const file = (event.target as HTMLInputElement).files[0];
+    if (file) {
+      console.log(file);
+      // 在這裡，你可以添加檔案上傳的邏輯，比如將檔案上傳到伺服器
+    }
   }
 
 }

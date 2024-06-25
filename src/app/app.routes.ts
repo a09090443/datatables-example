@@ -1,9 +1,9 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 import {FoodComponent} from "./food/food.component";
 import {TableComponent} from "./table/table.component";
-import {ItemComponent} from "./item/item.component";
 import {TableExampleComponent} from "./table-example/table-example.component";
 import {TableSimpleComponent} from "./table-simple/table-simple.component";
+import {TestComponent} from "./test/test.component";
 
 export const routes: Routes = [
   {
@@ -23,7 +23,7 @@ export const routes: Routes = [
     component: TableSimpleComponent,
   },
   {
-    path: 'item',
-    component: ItemComponent,
+    path: 'test',
+    component: TestComponent,
   }
 ];
